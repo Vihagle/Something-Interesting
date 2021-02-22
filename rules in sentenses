@@ -1,0 +1,25 @@
+import random
+from icecream import ic
+rules = '''
+句子 = 主语 谓语 宾语
+主语 = 你 | 我 | 他
+谓语 = 吃 | 玩
+宾语 = 香蕉 | 螃蟹 | 泥巴
+'''
+
+#处理，定义规则
+def get_grammer_by_description(description):
+    rules_pattern = [i.split('=') for i in description.split('\n') if i.strip()]
+    target_with_expand = [(t,x.split('|')) for t,x in rules_pattern]
+    grammer = {t.strip():[y.strip() for y in x] for t,x in target_with_expand}
+    return grammer
+def generate_by_grammer(grammer,target):
+    if target not in grammer:
+        return target
+    else:
+        return ''.join(generate_by_grammer(grammer,target) for target in random.choice(grammer[target]).split())
+
+
+grammer = get_grammer_by_description(rules)
+ic(grammer)
+ic(generate_by_grammer(grammer,target='句子'))
