@@ -7,12 +7,13 @@ rules = '''
 宾语 = 香蕉 | 螃蟹 | 泥巴
 '''
 
-#处理，定义规则
+#define rules
 def get_grammer_by_description(description):
     rules_pattern = [i.split('=') for i in description.split('\n') if i.strip()]
     target_with_expand = [(t,x.split('|')) for t,x in rules_pattern]
     grammer = {t.strip():[y.strip() for y in x] for t,x in target_with_expand}
     return grammer
+#restructuring words
 def generate_by_grammer(grammer,target):
     if target not in grammer:
         return target
