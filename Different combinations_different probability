@@ -1,0 +1,25 @@
+from collections import defaultdict
+from math import factorial
+from random import shuffle
+#建立函数，统计abcd四个不同字母形成不同组合所形成的概率
+def test_shuffler(deck = 'abcd',n = 10000):
+    # 建立一个默认的字典
+    counts = defaultdict(int)
+    #重复10000次循环
+    for _ in range(n):
+        #将字符串利用列表的形式，将每个字母分开
+        input = list(deck)
+        #打乱每个字母的顺序
+        shuffle(input)
+        #统计每个字母组合所出现的此数
+        counts[''.join(input)] += 1
+    #计算在10000次范围内，abcd出现不同组合的平均次数
+    e = n*1./factorial(len(deck))
+    #统计每个（组合/平均次数），计算出每个组合偏离程度，如果都在0.9~1.1范围内，则满足平均分配的要求
+    ok = all((0.9 <= counts[item]/e <= 1.1)for item in counts)
+    print(counts,e,ok)
+    print(f"It's ok" if ok else "It's bad")
+    #计算每个组合出现的概率
+    for item,count in sorted(counts.items()):
+        print(f'{item}:{count*100/n}%')
+test_shuffler()
