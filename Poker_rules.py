@@ -1,16 +1,54 @@
 import random
-#做一个发牌器，将四种花色和13种数字大小随机生成7种组合，即发7张牌
+#做一个发牌器，将四种花色和13种数字大小随机生成7种组合，即发7张牌，其中存在红、黑两种颜色的Joker的情况
 def dealer(num = 7):
-    suit = ['H','D','C','S']
+    #将Joker划分到花色suit这个列表里
+    suit = ['H','D','C','S','?B','?R']
     rank = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
     hand = []
-    for _ in range(num):
+    count = 0
+    while count != num:
         Suit = random.choice(suit)
         Rank = random.choice(rank)
-        hand.append(Rank+Suit)
+        #如果发到Joker的牌，则将suit列表中相对应Joker牌拿掉，避免重复发到Joker牌
+        if (Suit == '?B') or (Suit == '?R'):
+                hand.append(Suit)
+                suit.remove(Suit)
+                count += 1
+        #如果发到的牌与手里的牌重复，则重新发过
+        elif (Rank+Suit) in hand:
+            continue
+        else:
+            hand.append(Rank+Suit)
+            count += 1
     return hand
 
+
 import itertools
+#此处定义Joker牌的规则，如果抽到红色Joker，则可以将其换成方块（Diamond）或红桃（Heart）花色任意大小的牌，同样，如果是黑Joker，则可以替换成黑桃（Spade）或梅花（Club）花色任意大小的牌
+all_rank = '23456789TJQKA'
+redcard = [r+s for r in all_rank for s in 'DH']
+blackcard = [r+s for r in all_rank for s in 'SC']
+
+def best_wild_hand(hand):
+    # for h in itertools.product(*map(replacement, hand)):
+    #     print(h)
+    '''
+    这里用了比较tricky的方法，将手里的牌放到map函数里面，一一将手牌遍历到replacement里面的函数，得到Joker所能替换的所有手牌列表，然后利用itertools.product函数，将所有情况进行组合，
+    再遍历所有组合，放到best_hand函数里面去，获得不同组合所能出现最好手牌的集合。
+    '''
+    hands = set(best_hand(h)for h in itertools.product(*map(replacement,hand)))
+    #取得每个组合的最高等级的手牌
+    return max(hands,key = hand_rank)
+
+#此处replacement的作用是将Joker牌替换成所有能替换的手牌形成的列表
+def replacement(card):
+        if card == '?B':
+            return blackcard
+        elif card == '?R':
+            return redcard
+        else:
+            return [card]
+
 #将发下来的7张手牌，随机抽取5张，通过hand_rank判断抽取的5张手牌属于那种类型组合，并通过等级大小判断选出最好的手牌
 def best_hand(hand):
     return max(list(itertools.combinations(hand,5)),key = hand_rank)
@@ -80,7 +118,6 @@ def two_pair(ranks):
 
 hand = dealer(num=7)
 #输出当前手牌
-print(hand)
+print(f'当前的手牌是：{hand}')
 #输出当前手牌最好的组合与其等级
-print(best_hand(hand))
-print(f'最好的手牌为等级{hand_rank(hand)[0]}')
+print(f'当前手牌最好的组合是：{best_wild_hand(hand)}')
